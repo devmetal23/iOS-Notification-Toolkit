@@ -1,0 +1,10 @@
+// Shared build settings for every target.
+// Put your team ID and any overrides in Config/Local.local.xcconfig (gitignored), e.g.
+//   DEVELOPMENT_TEAM = ABCDE12345
+//   BUNDLE_ID_PREFIX = com.yourcompany
+
+BUNDLE_ID_PREFIX = com.devmetal23
+APP_GROUP_ID = group.$(BUNDLE_ID_PREFIX).notificationtoolkit
+DEVELOPMENT_TEAM =
+
+#include? "Local.local.xcconfig"
