@@ -16,6 +16,8 @@ struct SettingsView: View {
     @State private var pendingRetention: PendingRetention?
     @State private var isApplyingRetention = false
     @State private var showsPaywall = false
+    /// Waiting for Face ID, Touch ID or the passcode before turning the lock on.
+    @State private var isConfirmingAppLock = false
 
     private var isPro: Bool { model.entitlements.isPro }
 
@@ -126,7 +128,8 @@ struct SettingsView: View {
             Toggle(isOn: appLockBinding) {
                 Label("Require Face ID", systemImage: "faceid")
             }
-            .disabled(!AppLock.isAvailable)
+            // Turning the lock off always works, even if the device can no longer authenticate.
+            .disabled(isConfirmingAppLock || (!isAppLockEnabled && !AppLock.isAvailable))
 
             Toggle(isOn: widgetTextBinding) {
                 Label("Show Notification Text in Widgets", systemImage: "text.below.photo")
@@ -259,10 +262,30 @@ struct SettingsView: View {
         Binding(
             get: { isAppLockEnabled },
             set: { newValue in
-                isAppLockEnabled = newValue
-                model.settings.isAppLockEnabled = newValue
+                if newValue {
+                    turnOnAppLock()
+                } else {
+                    isAppLockEnabled = false
+                    model.settings.isAppLockEnabled = false
+                }
             }
         )
+    }
+
+    /// Turns the lock on only after the user proves they can unlock, so a failed
+    /// or cancelled prompt leaves it off and never locks them out.
+    private func turnOnAppLock() {
+        guard !isConfirmingAppLock else { return }
+        isConfirmingAppLock = true
+        Task {
+            let authenticated = await AppLock.authenticate(
+                reason: String(localized: "Confirm it's you to turn on the lock for Notification Toolkit.")
+            )
+            isConfirmingAppLock = false
+            guard authenticated else { return }
+            isAppLockEnabled = true
+            model.settings.isAppLockEnabled = true
+        }
     }
 
     private var widgetTextBinding: Binding<Bool> {
