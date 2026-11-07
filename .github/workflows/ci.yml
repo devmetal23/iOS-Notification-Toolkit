@@ -1,0 +1,99 @@
+# Runs on pull requests, pushes to main and on demand. Feature-branch pushes don't
+# trigger it, to save Actions minutes (macOS minutes count 10x).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same pull request or branch cancels the run in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-linux:
+    name: ToolkitCore tests (Linux)
+    runs-on: ubuntu-latest
+    container: swift:6.3-noble
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install SQLite headers
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends libsqlite3-dev
+
+      - name: Run tests
+        run: swift test --package-path Packages/ToolkitCore
+
+  app-macos:
+    name: App build (iOS Simulator)
+    # Only spend macOS minutes once the core tests pass. `swift test` isn't run
+    # here: core-linux covers it.
+    needs: core-linux
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Select newest Xcode
+        run: |
+          set -euo pipefail
+          # One "sortkey<TAB>version<TAB>path" line per installed Xcode; the key
+          # zero-pads each version part so a plain sort orders 9.4 < 16.4 < 27.0.
+          candidates=$(
+            for app in /Applications/Xcode*.app; do
+              plist="$app/Contents/Info.plist"
+              [ -f "$plist" ] || continue
+              version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist")
+              key=$(echo "$version" | awk -F. '{ printf "%05d%05d%05d", $1, $2, $3 }')
+              printf '%s\t%s\t%s\n' "$key" "$version" "$app"
+            done
+          )
+          newest=$(printf '%s\n' "$candidates" | sed '/^$/d' | sort | tail -n 1)
+          if [ -z "$newest" ]; then
+            echo "::error::No Xcode found in /Applications."
+            exit 1
+          fi
+          version=$(printf '%s' "$newest" | cut -f2)
+          app=$(printf '%s' "$newest" | cut -f3)
+          major=${version%%.*}
+          if [ "$major" -lt 27 ]; then
+            echo "::error::The newest Xcode on this runner is $version ($app). Notification Toolkit needs Xcode 27 or later for the iOS 27 SDK. Point runs-on at a macOS image that includes it."
+            exit 1
+          fi
+          sudo xcode-select --switch "$app/Contents/Developer"
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build NotificationToolkit
+        run: >
+          xcodebuild build
+          -project NotificationToolkit.xcodeproj
+          -scheme NotificationToolkit
+          -configuration Debug
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build/DerivedData
+          CODE_SIGNING_ALLOWED=NO
+
+      - name: Build SpikeHarness
+        run: >
+          xcodebuild build
+          -project NotificationToolkit.xcodeproj
+          -scheme SpikeHarness
+          -configuration Debug
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build/DerivedData
+          CODE_SIGNING_ALLOWED=NO
