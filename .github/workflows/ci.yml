@@ -65,9 +65,17 @@ jobs:
           version=$(printf '%s' "$newest" | cut -f2)
           app=$(printf '%s' "$newest" | cut -f3)
           major=${version%%.*}
-          if [ "$major" -lt 27 ]; then
-            echo "::error::The newest Xcode on this runner is $version ($app). Notification Toolkit needs Xcode 27 or later for the iOS 27 SDK. Point runs-on at a macOS image that includes it."
+          if [ "$major" -lt 26 ]; then
+            echo "::error::The newest Xcode on this runner is $version ($app). Notification Toolkit needs Xcode 26 or later to compile."
             exit 1
+          fi
+          # The app targets iOS 27, which needs Xcode 27. Until the hosted runners
+          # ship it, compile against the newest iOS 26 SDK by lowering the
+          # deployment target for this build only. The code uses no iOS 27 APIs,
+          # so this still catches compile errors.
+          if [ "$major" -lt 27 ]; then
+            echo "::warning::No Xcode 27 on this runner (newest is $version). Compiling against the iOS 26 SDK with IPHONEOS_DEPLOYMENT_TARGET=26.0 as a stand-in."
+            echo "DEPLOYMENT_TARGET_OVERRIDE=IPHONEOS_DEPLOYMENT_TARGET=26.0" >> "$GITHUB_ENV"
           fi
           sudo xcode-select --switch "$app/Contents/Developer"
           xcodebuild -version
@@ -87,6 +95,7 @@ jobs:
           -destination 'generic/platform=iOS Simulator'
           -derivedDataPath build/DerivedData
           CODE_SIGNING_ALLOWED=NO
+          ${DEPLOYMENT_TARGET_OVERRIDE:-}
 
       - name: Build SpikeHarness
         run: >
@@ -97,3 +106,4 @@ jobs:
           -destination 'generic/platform=iOS Simulator'
           -derivedDataPath build/DerivedData
           CODE_SIGNING_ALLOWED=NO
+          ${DEPLOYMENT_TARGET_OVERRIDE:-}
