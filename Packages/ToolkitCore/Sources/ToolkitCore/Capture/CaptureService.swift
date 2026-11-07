@@ -1,7 +1,5 @@
 import Foundation
 
-// CONTRACT STUB — workstream W1 replaces the body of `capture(_:)`. Keep the public signatures.
-
 /// The whole capture pipeline behind Log Notification (FR-6), kept out of the
 /// intent so it runs and is tested on any platform.
 ///
@@ -24,7 +22,74 @@ public struct CaptureService: Sendable {
     }
 
     public func capture(_ notification: NewNotification) throws -> CaptureOutcome {
-        fatalError("W1: not implemented")
+        // 1. Paused from the Control Center toggle (FR-18).
+        if settings.isLoggingPaused { return .paused }
+
+        let now = self.now()
+        let isTestNotification: Bool
+        if notification.appKey == .ownApp {
+            // 2. Notification Toolkit's own notifications are snoozes coming back,
+            // already in history, unless the user just sent a test notification (FR-5).
+            guard let expectedUntil = settings.testNotificationExpectedUntil, expectedUntil >= now else {
+                return .ignoredOwnNotification
+            }
+            // The test never takes a free-tier slot, so it skips the gate.
+            isTestNotification = true
+        } else {
+            // 3. Free tier: only the first 3 apps are logged.
+            isTestNotification = false
+            let tier = settings.tier
+            let trackedApps: [TrackedApp]
+            if TierLimits(for: tier).maxApps == nil {
+                trackedApps = []
+            } else {
+                trackedApps = try store.trackedApps()
+            }
+            if CaptureGate.decide(app: notification.appKey, tier: tier, trackedApps: trackedApps) == .blockedByAppLimit {
+                try store.recordBlockedCapture(notification, at: now)
+                return .blockedByAppLimit
+            }
+        }
+
+        // 4. Store, unless it duplicates one received within a minute (FR-8).
+        let outcome = try store.insert(notification, capturedAt: now, dedupeWindow: Self.dedupeWindow)
+
+        if isTestNotification {
+            settings.lastTestCaptureAt = now
+            settings.testNotificationExpectedUntil = nil
+            // The insert registered Notification Toolkit as a tracked app, which it
+            // never is. Best effort: the test capture itself succeeded.
+            try? store.removeApp(.ownApp)
+        }
+
+        // 5. Cleanup piggybacks on captures (FR-12).
+        applyRetentionIfDue(now: now)
+
+        switch outcome {
+        case .inserted(let entry):
+            return .stored(entry)
+        case .duplicate:
+            return .duplicate
+        }
+    }
+
+    /// Applies the effective retention when it last ran at least `retentionInterval`
+    /// ago, never ran, or ran "in the future" (the clock was changed). A failure is
+    /// swallowed so it never fails the capture, and retried on the next capture.
+    /// Retention only deletes entries without a pending snooze, so the snoozes it
+    /// removes have all fired and there are no requests to cancel here.
+    private func applyRetentionIfDue(now: Date) {
+        if let lastRun = settings.lastRetentionRunAt,
+           lastRun <= now,
+           now.timeIntervalSince(lastRun) < Self.retentionInterval {
+            return
+        }
+        do {
+            _ = try store.applyRetention(settings.effectiveRetention, now: now)
+            settings.lastRetentionRunAt = now
+        } catch {
+            // Leave lastRetentionRunAt unchanged so the next capture tries again.
+        }
     }
 }
 
