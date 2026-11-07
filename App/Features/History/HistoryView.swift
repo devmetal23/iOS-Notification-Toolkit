@@ -19,6 +19,7 @@ private struct HistoryScreen: View {
     @State private var path: [NotificationEntry] = []
     /// The row whose Snooze swipe action was tapped; drives the snooze dialog.
     @State private var snoozeTarget: NotificationEntry?
+    @State private var showsPaywall = false
     @State private var showsCustomRange = false
     @State private var errorMessage: String?
     @State private var showsMissingEntry = false
@@ -137,6 +138,9 @@ private struct HistoryScreen: View {
         } message: { entry in
             Text("Get “\(entry.title.isEmpty ? entry.appName : entry.title)” again later as a notification.")
         }
+        .sheet(isPresented: $showsPaywall) {
+            PaywallView()
+        }
     }
 
     private func row(for entry: NotificationEntry) -> some View {
@@ -148,7 +152,12 @@ private struct HistoryScreen: View {
                 delete(entry)
             }
             Button("Snooze", systemImage: "moon.zzz") {
-                snoozeTarget = entry
+                // Free users see the paywall before picking a time, not after.
+                if model.entitlements.isPro {
+                    snoozeTarget = entry
+                } else {
+                    showsPaywall = true
+                }
             }
             .tint(.indigo)
         }
