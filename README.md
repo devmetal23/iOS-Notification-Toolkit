@@ -7,6 +7,7 @@ Notification Toolkit runs on iOS 27's Shortcuts notification trigger ("When I re
 - Requirements spec: [Notification Toolkit Requirements](https://claude.ai/artifact/8qL6t3P3nnd2vp1i53PTyX)
 - Architecture and workstreams: [docs/architecture.md](docs/architecture.md)
 - Validation spikes: [docs/spikes.md](docs/spikes.md)
+- Decisions log: [docs/decisions.md](docs/decisions.md)
 - Platform: iOS 27 and later, iPhone only for v1
 
 ## Build
