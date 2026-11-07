@@ -1,16 +1,11 @@
 import Foundation
 import ToolkitCore
 
-/// User-facing text for snooze times (FR-14, FR-15).
-enum SnoozeFormatting {
-    /// Menu and dialog title for an option, e.g. "15 Minutes" or "Tomorrow, 8:00 AM".
-    static func optionTitle(
-        _ option: SnoozeOption,
-        morningHour: Int,
-        now: Date = Date(),
-        calendar: Calendar = .current
-    ) -> String {
-        switch option {
+extension SnoozeOption {
+    /// The one title for this option in every snooze menu and dialog, e.g.
+    /// "15 Minutes" or "Tomorrow, 8:00 AM". Pass `settings.morningHour`.
+    func displayTitle(morningHour: Int, now: Date = Date(), calendar: Calendar = .current) -> String {
+        switch self {
         case .fifteenMinutes:
             return String(localized: "15 Minutes")
         case .oneHour:
@@ -18,14 +13,17 @@ enum SnoozeFormatting {
         case .threeHours:
             return String(localized: "3 Hours")
         case .tomorrowMorning:
-            let date = option.fireDate(from: now, calendar: calendar, morningHour: morningHour)
+            let date = fireDate(from: now, calendar: calendar, morningHour: morningHour)
             let time = date.formatted(date: .omitted, time: .shortened)
             return String(localized: "Tomorrow, \(time)")
         case .custom(let date):
-            return fireTimeText(date, now: now, calendar: calendar)
+            return SnoozeFormatting.fireTimeText(date, now: now, calendar: calendar)
         }
     }
+}
 
+/// User-facing text for snooze times (FR-14, FR-15).
+enum SnoozeFormatting {
     /// When a snooze comes back, compactly: "3:15 PM", "Tomorrow, 8:00 AM" or
     /// "Mon, Nov 9, 8:00 AM".
     static func fireTimeText(_ date: Date, now: Date = Date(), calendar: Calendar = .current) -> String {

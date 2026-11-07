@@ -34,7 +34,7 @@ struct SnoozedListView: View {
             presenting: selection
         ) { record in
             ForEach(SnoozeOption.presets) { option in
-                Button(SnoozeFormatting.optionTitle(option, morningHour: model.settings.morningHour)) {
+                Button(option.displayTitle(morningHour: model.settings.morningHour)) {
                     Task { await SnoozeFlow.reschedule(record, to: option, model: model) }
                 }
             }

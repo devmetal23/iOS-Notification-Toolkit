@@ -159,9 +159,10 @@ final class TestCaptureRunner {
             } catch {
                 return // Cancelled by a new run.
             }
-            if let capturedAt = settings.lastTestCaptureAt, capturedAt >= startedAt {
+            if let capturedAt = Self.testCaptureTime(since: startedAt, model: model) {
                 // Disarm early, so a snooze coming back isn't logged as a test.
                 settings.testNotificationExpectedUntil = nil
+                settings.lastTestCaptureAt = capturedAt
                 phase = .captured(capturedAt)
                 model.historyDidChange()
                 UIAccessibility.post(notification: .announcement, argument: String(localized: "Captured. Capture is working."))
@@ -173,6 +174,20 @@ final class TestCaptureRunner {
         }
         phase = .timedOut
         UIAccessibility.post(notification: .announcement, argument: String(localized: "The test notification wasn't logged."))
+    }
+
+    /// When the test notification was logged, if it was at or after `start`. Also
+    /// looks for Notification Toolkit's own entry in the store, so the test works
+    /// whether or not the capture path updates `lastTestCaptureAt`.
+    private static func testCaptureTime(since start: Date, model: AppModel) -> Date? {
+        if let capturedAt = model.settings.lastTestCaptureAt, capturedAt >= start {
+            return capturedAt
+        }
+        let query = HistoryQuery(filter: HistoryFilter(apps: [.ownApp]), limit: 1)
+        guard let entry = try? model.store().entries(query).first, entry.capturedAt >= start else {
+            return nil
+        }
+        return entry.capturedAt
     }
 }
 

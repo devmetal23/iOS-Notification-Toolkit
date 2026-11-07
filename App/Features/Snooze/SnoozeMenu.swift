@@ -19,7 +19,7 @@ struct SnoozeMenu: View {
     var body: some View {
         Menu("Snooze", systemImage: "moon.zzz") {
             ForEach(SnoozeOption.presets) { option in
-                Button(SnoozeFormatting.optionTitle(option, morningHour: model.settings.morningHour)) {
+                Button(option.displayTitle(morningHour: model.settings.morningHour)) {
                     Task { await SnoozeFlow.choose(option, for: entry, model: model) }
                 }
             }
