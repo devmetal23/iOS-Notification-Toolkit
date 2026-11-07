@@ -1,6 +1,6 @@
 # Notification Toolkit
 
-A searchable, on-device history of your iPhone notifications, plus snooze and per-app alert sounds.
+A searchable, on-device history of your iPhone notifications, with snooze. Per-app alert sounds are planned once spike S3 confirms they work on a locked phone.
 
 Notification Toolkit runs on iOS 27's Shortcuts notification trigger ("When I receive a notification from [app]"). Each automation the user switches on hands the notification to the app's **Log Notification** App Intent, which saves it to an encrypted store on the device. Nothing leaves the phone.
 
