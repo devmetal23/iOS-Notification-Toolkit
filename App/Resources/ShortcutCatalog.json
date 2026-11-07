@@ -1,0 +1,174 @@
+{
+  "schemaVersion" : 1,
+  "entries" : [
+    {
+      "id" : "base",
+      "displayName" : "Notification Toolkit",
+      "category" : "toolkit",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-base",
+      "symbol" : "bell.badge",
+      "isBaseShortcut" : true
+    },
+    {
+      "id" : "messages",
+      "displayName" : "Messages",
+      "category" : "messaging",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-messages",
+      "symbol" : "message",
+      "keywords" : ["text", "sms", "imessage"]
+    },
+    {
+      "id" : "whatsapp",
+      "displayName" : "WhatsApp",
+      "category" : "messaging",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-whatsapp",
+      "symbol" : "bubble.left.and.bubble.right",
+      "keywords" : ["chat"]
+    },
+    {
+      "id" : "signal",
+      "displayName" : "Signal",
+      "category" : "messaging",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-signal",
+      "symbol" : "lock.shield",
+      "keywords" : ["chat", "private"]
+    },
+    {
+      "id" : "telegram",
+      "displayName" : "Telegram",
+      "category" : "messaging",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-telegram",
+      "symbol" : "text.bubble",
+      "keywords" : ["chat"]
+    },
+    {
+      "id" : "messenger",
+      "displayName" : "Messenger",
+      "category" : "messaging",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-messenger",
+      "symbol" : "ellipsis.bubble",
+      "keywords" : ["chat", "facebook"]
+    },
+    {
+      "id" : "phone",
+      "displayName" : "Phone",
+      "category" : "messaging",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-phone",
+      "symbol" : "phone",
+      "keywords" : ["calls", "missed call", "voicemail"]
+    },
+    {
+      "id" : "mail",
+      "displayName" : "Mail",
+      "category" : "email",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-mail",
+      "symbol" : "envelope",
+      "keywords" : ["email", "inbox"]
+    },
+    {
+      "id" : "gmail",
+      "displayName" : "Gmail",
+      "category" : "email",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-gmail",
+      "symbol" : "envelope.badge",
+      "keywords" : ["email", "google"]
+    },
+    {
+      "id" : "outlook",
+      "displayName" : "Outlook",
+      "category" : "email",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-outlook",
+      "symbol" : "envelope.open",
+      "keywords" : ["email", "microsoft"]
+    },
+    {
+      "id" : "slack",
+      "displayName" : "Slack",
+      "category" : "work",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-slack",
+      "symbol" : "person.3",
+      "keywords" : ["chat", "work"]
+    },
+    {
+      "id" : "microsoft-teams",
+      "displayName" : "Microsoft Teams",
+      "category" : "work",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-microsoft-teams",
+      "symbol" : "video",
+      "keywords" : ["teams", "meetings", "chat", "work"]
+    },
+    {
+      "id" : "calendar",
+      "displayName" : "Calendar",
+      "category" : "work",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-calendar",
+      "symbol" : "calendar",
+      "keywords" : ["events", "invitations", "meetings"]
+    },
+    {
+      "id" : "instagram",
+      "displayName" : "Instagram",
+      "category" : "social",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-instagram",
+      "symbol" : "photo.on.rectangle",
+      "keywords" : ["photos", "direct messages"]
+    },
+    {
+      "id" : "x",
+      "displayName" : "X",
+      "category" : "social",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-x",
+      "symbol" : "quote.bubble",
+      "keywords" : ["twitter", "posts"]
+    },
+    {
+      "id" : "linkedin",
+      "displayName" : "LinkedIn",
+      "category" : "social",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-linkedin",
+      "symbol" : "briefcase",
+      "keywords" : ["jobs", "work"]
+    },
+    {
+      "id" : "discord",
+      "displayName" : "Discord",
+      "category" : "social",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-discord",
+      "symbol" : "headphones",
+      "keywords" : ["chat", "gaming", "servers"]
+    },
+    {
+      "id" : "uber",
+      "displayName" : "Uber",
+      "category" : "shoppingAndRides",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-uber",
+      "symbol" : "car",
+      "keywords" : ["rides", "taxi"]
+    },
+    {
+      "id" : "doordash",
+      "displayName" : "DoorDash",
+      "category" : "shoppingAndRides",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-doordash",
+      "symbol" : "takeoutbag.and.cup.and.straw",
+      "keywords" : ["food", "delivery", "takeout"]
+    },
+    {
+      "id" : "amazon",
+      "displayName" : "Amazon",
+      "category" : "shoppingAndRides",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-amazon",
+      "symbol" : "shippingbox",
+      "keywords" : ["orders", "deliveries", "shopping"]
+    },
+    {
+      "id" : "banking",
+      "displayName" : "Banking",
+      "category" : "finance",
+      "shortcutURL" : "https://www.icloud.com/shortcuts/REPLACE-banking",
+      "symbol" : "building.columns",
+      "keywords" : ["bank", "card", "money", "payments"],
+      "requiresAppSelection" : true
+    }
+  ]
+}
