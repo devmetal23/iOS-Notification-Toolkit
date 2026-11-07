@@ -28,6 +28,9 @@ final class SnoozeScheduler {
         let now = Date()
         let fireAt = try fireDate(for: option, now: now)
         let store = try openStore()
+        // A snooze of this entry that already came back this session keeps its record
+        // until cleanup; drop it so the entry never has two records.
+        _ = try? store.removeSnoozes(firedBefore: now)
 
         if let existing = try store.pendingSnoozes(after: now).first(where: { $0.entry.id == entry.id }) {
             return try await move(existing, to: fireAt, in: store)
@@ -53,10 +56,16 @@ final class SnoozeScheduler {
 
     /// Deletes the snooze and removes its notification, pending or delivered.
     func cancel(_ record: SnoozeRecord) async throws {
+        let store = try openStore()
         do {
-            try openStore().removeSnooze(id: record.id)
-        } catch StoreError.notFound {
-            // Already fired and cleaned up; its notification may still be pending or delivered.
+            try store.removeSnooze(id: record.id)
+        } catch {
+            // A record that is already gone (fired and cleaned up, or deleted with its
+            // entry) may or may not throw, and with no documented error. Only fail if
+            // it is still there; otherwise still remove its notification below.
+            if try store.pendingSnoozes(after: .distantPast).contains(where: { $0.id == record.id }) {
+                throw error
+            }
         }
         cancel(requestIdentifiers: [record.requestIdentifier])
     }

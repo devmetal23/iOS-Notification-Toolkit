@@ -126,7 +126,7 @@ private struct HistoryScreen: View {
             presenting: snoozeTarget
         ) { entry in
             ForEach(SnoozeOption.presets) { option in
-                Button(option.historyDialogTitle) {
+                Button(option.displayTitle(morningHour: model.settings.morningHour)) {
                     Task { await SnoozeFlow.choose(option, for: entry, model: model) }
                 }
             }
@@ -355,19 +355,6 @@ private struct HistoryDayHeader: View {
             }
         }
         .accessibilityAddTraits(.isHeader)
-    }
-}
-
-private extension SnoozeOption {
-    /// Button title in the list's snooze dialog. `custom` is offered as "Choose Time…".
-    var historyDialogTitle: LocalizedStringKey {
-        switch self {
-        case .fifteenMinutes: "In 15 Minutes"
-        case .oneHour: "In 1 Hour"
-        case .threeHours: "In 3 Hours"
-        case .tomorrowMorning: "Tomorrow Morning"
-        case .custom(let date): "At \(date.formatted(date: .abbreviated, time: .shortened))"
-        }
     }
 }
 
