@@ -17,14 +17,12 @@ enum LoggingControlKind {
 /// (false) for every tier: App Intents reads it as static metadata, so it can't
 /// depend on the cached entitlement.
 struct SetLoggingActiveIntent: SetValueIntent {
-    static var title: LocalizedStringResource { "Set Notification Logging" }
+    static let title: LocalizedStringResource = "Set Notification Logging"
 
-    static var description: IntentDescription {
-        IntentDescription("Pauses or resumes saving notifications to your history. Requires Pro.")
-    }
+    static let description = IntentDescription("Pauses or resumes saving notifications to your history. Requires Pro.")
 
     /// Only the control uses this intent; Shortcuts users have their own automations.
-    static var isDiscoverable: Bool { false }
+    static let isDiscoverable = false
 
     /// True when logging is active, false when it is paused.
     @Parameter(title: "Logging Active")
